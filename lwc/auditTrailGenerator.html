@@ -1,0 +1,94 @@
+<template>
+    <lightning-card title="Agentforce Package.xml Generator" icon-name="standard:bot">
+        <div class="slds-m-around_medium">
+            
+            <div class="slds-text-body_regular slds-m-bottom_medium">
+                Select audit trail items and click "Smart Resolve". 
+                Use the filter below to isolate Created vs. Updated metadata.
+            </div>
+
+            <!-- Toolbar Grid -->
+            <div class="slds-grid slds-gutters slds-m-bottom_medium slds-wrap">
+                
+                <!-- Action Buttons -->
+                <div class="slds-col slds-grow-none">
+                    <lightning-button-group>
+                        <lightning-button 
+                            label="Smart Resolve (Tooling + AI)" 
+                            icon-name="utility:einstein" 
+                            onclick={handleResolve}
+                            disabled={isResolveDisabled}
+                            variant="neutral">
+                        </lightning-button>
+                        <lightning-button 
+                            label="Generate XML" 
+                            icon-name="utility:download" 
+                            variant="brand" 
+                            onclick={handleGenerateXML}
+                            disabled={isGenerateDisabled}>
+                        </lightning-button>
+                    </lightning-button-group>
+                </div>
+
+                <!-- Filter Switch -->
+                <div class="slds-col slds-align-middle">
+                    <lightning-radio-group 
+                        name="filterSwitch"
+                        label="View Filter"
+                        options={filterOptions}
+                        value={currentFilter}
+                        onchange={handleFilterChange}
+                        type="button"
+                        variant="label-hidden">
+                    </lightning-radio-group>
+                </div>
+
+                <!-- Selection Count -->
+                <div class="slds-col slds-col_bump-left slds-align-bottom">
+                    <lightning-badge label={selectedCountLabel}></lightning-badge>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div style="height: 400px;">
+                <lightning-datatable
+                    key-field="id"
+                    data={filteredData}
+                    columns={columns}
+                    onrowselection={handleRowSelection}
+                    draft-values={draftValues}
+                    onsave={handleSave}
+                    show-row-number-column>
+                </lightning-datatable>
+            </div>
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+
+            <!-- XML Output Modal -->
+            <template if:true={generatedXml}>
+                <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                                <lightning-icon icon-name="utility:close" variant="inverse" size="small"></lightning-icon>
+                            </button>
+                            <h2 class="slds-text-heading_medium">Generated Package.xml</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium">
+                            <lightning-textarea value={generatedXml} readonly style="height: 300px; font-family:monospace;"></lightning-textarea>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Close" onclick={closeModal}></lightning-button>
+                            <lightning-button label="Copy to Clipboard" variant="brand" onclick={handleCopy} class="slds-m-left_x-small"></lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>
